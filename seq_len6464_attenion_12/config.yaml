@@ -1,0 +1,8 @@
+attention_layers: 1
+batch_size: 1024
+embed_dim: 64
+epochs: 6
+n_head: 2
+seq_length: 64
+use_positional_emb: true
+vocab_size: 65
