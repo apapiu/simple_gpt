@@ -22,43 +22,74 @@ def sample_top_k(probs, k):
     sampled_index = np.random.choice(top_k_indices, p=top_k_probs)
     return sampled_index
 
+# def generate_text(example, model, nchar=128, k=5,
+#                   one_char_at_a_time=False, end_on_zero=True, device="cuda"):
+                      
+#     model.eval()  # Set the model to evaluation mode
+
+#     with torch.no_grad():  # Disable gradient calculations for inference
+#         for i in range(nchar):
+#             if one_char_at_a_time:
+#                 clear_output(wait=True)
+
+#             from torch.nn.functional import pad
+
+#             if len(example) < seq_length:
+#                 padding_length = seq_length - len(example)
+#                 example_torch = torch.tensor(example).long()
+#                 example_torch = pad(example_torch, (padding_length, 0), 'constant', 0).unsqueeze(0).to(device)
+#             else:
+#                 example_torch = torch.tensor(example[-seq_length:]).unsqueeze(0).long().to(device)
+
+#             # Forward pass
+#             logits = model(example_torch)
+#             probs = torch.nn.functional.softmax(logits[0][-1], dim=0).cpu().numpy()
+
+#             next_token = sample_top_k(probs, k)
+
+#             example.append(next_token)
+
+#             if one_char_at_a_time:
+#                 print(decode(example).replace('??', ' '))
+
+#             if next_token == 0 and end_on_zero:
+#                 break
+
+#         if not one_char_at_a_time:
+#             print(decode(example).replace('??', ' '))
+
+#     return decode(example).replace('??', ' ')
+
 def generate_text(example, model, nchar=128, k=5,
                   one_char_at_a_time=False, end_on_zero=True, device="cuda"):
-                      
     model.eval()  # Set the model to evaluation mode
 
     with torch.no_grad():  # Disable gradient calculations for inference
         for i in range(nchar):
+
             if one_char_at_a_time:
                 clear_output(wait=True)
 
-            from torch.nn.functional import pad
+            example_torch = torch.tensor(example[-seq_length:]).unsqueeze(0).long().to(device)
 
-            if len(example) < seq_length:
-                padding_length = seq_length - len(example)
-                example_torch = torch.tensor(example).long()
-                example_torch = pad(example_torch, (padding_length, 0), 'constant', 0).unsqueeze(0).to(device)
-            else:
-                example_torch = torch.tensor(example[-seq_length:]).unsqueeze(0).long().to(device)
+            logits = model(example_torch) #1, n, vocab -> pick
 
-            # Forward pass
-            logits = model(example_torch)
             probs = torch.nn.functional.softmax(logits[0][-1], dim=0).cpu().numpy()
-
             next_token = sample_top_k(probs, k)
 
             example.append(next_token)
 
             if one_char_at_a_time:
-                print(decode(example).replace('??', ' '))
+                print(decode(example))
 
             if next_token == 0 and end_on_zero:
                 break
 
         if not one_char_at_a_time:
-            print(decode(example).replace('??', ' '))
+            print(decode(example))
 
-    return decode(example).replace('??', ' ')
+    return decode(example)
+
 
 
 
